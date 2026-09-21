@@ -4,15 +4,41 @@
    ========================================================== */
 const shopConfig = {
   /*
-   * TEBEX CONNECTION
+   * CONNECT TEBEX
    * --------------------------------------------------------
-   * For a real custom-site integration, keep Tebex credentials on your backend.
-   * Never put a Tebex private key/secret in this browser file.
-   * Add your public store URL here for documentation/buttons if desired.
+   * This is the only section you need to fill in to take real payments.
+   * Never put a Tebex PRIVATE/secret key in this file — only the public
+   * webstore token below, which is safe to expose in the browser (it's
+   * built for exactly this kind of frontend integration).
+   *
+   *  1. Log in at https://creator.tebex.io
+   *  2. Go to Integrations > API Keys and copy your Public Token into
+   *     webstoreToken below (looks like "t66x-xxxxxxxxxxxxxxxxxxxxx").
+   *  3. Under Store > Packages, create/open a package for each product
+   *     below and copy its numeric Package ID into packageIds, matching
+   *     it to the product's id.
+   *  4. Set enabled to true.
+   *
+   * Once all of this is filled in, checkout automatically switches from
+   * the demo order summary to a real Tebex checkout. Any product left
+   * without a matching package ID, or left here while enabled is false,
+   * keeps using the demo — nothing breaks while you fill this in.
    */
   tebex: {
-    storeUrl: 'https://yourstore.tebex.io',
-    connected: false
+    enabled: false,
+    webstoreToken: '',
+    packageIds: {
+      vip: null,
+      elite: null,
+      legend: null,
+      immortal: null,
+      ryft: null,
+      'ryftsmp-plus': null,
+      'spawner-key': null,
+      'elite-key': null,
+      'ryft-key': null,
+      'exotic-key': null
+    }
   },
 
   /*
@@ -29,8 +55,10 @@ const shopConfig = {
    * Supported discountType values: 'percent' or 'fixed'.
    * Usage controls: maxRedemptions (null = unlimited), expiresAt (null = never expires).
    * Redemption counts are stored in this browser for the frontend demo.
-   * NOTE: These browser-side codes are for the storefront demo. For real payments,
-   * validate the code and final price on your payment/backend system too.
+   * NOTE: These browser-side codes only change the price shown on this page.
+   * Tebex doesn't know about them. For a code to also reduce what Tebex
+   * actually charges, create a matching Coupon or Creator Code with the
+   * same rules in your Tebex Creator Panel.
    */
   promoCodes: {
     RYFT10: { type: 'discount', discountType: 'percent', value: 10, description: '10% off your order', maxRedemptions: 100, expiresAt: '2026-12-31T23:59:59' },
@@ -540,6 +568,76 @@ function getOrderText(username, email) {
   return lines.join('\n');
 }
 
+/* ==========================================================
+   TEBEX CHECKOUT
+   Uses the Tebex Headless API with the public webstore token
+   from the CONNECT TEBEX config above. Only runs once enabled;
+   otherwise checkout stays on the demo order summary.
+   ========================================================== */
+const TEBEX_API = 'https://headless.tebex.io/api/accounts';
+
+function tebexConfigIssue() {
+  const { enabled, webstoreToken, packageIds } = shopConfig.tebex;
+  if (!enabled) return null;
+  if (!webstoreToken) return 'Tebex is enabled but webstoreToken is empty — add your Public Token in shopConfig.tebex.';
+  const unmapped = cartEntries().find(({ product }) => !packageIds[product.id]);
+  if (unmapped) return `"${unmapped.product.name}" has no Tebex package ID yet — add one in shopConfig.tebex.packageIds.`;
+  return null;
+}
+
+async function tebexRequest(path, body) {
+  const response = await fetch(`${TEBEX_API}/${shopConfig.tebex.webstoreToken}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) throw new Error(`Tebex request failed (${response.status})`);
+  return (await response.json()).data;
+}
+
+async function startTebexCheckout(username) {
+  const basket = await tebexRequest('/baskets', {
+    username,
+    complete_url: window.location.href,
+    cancel_url: window.location.href
+  });
+
+  let latest = basket;
+  for (const { product, quantity } of cartEntries()) {
+    latest = await tebexRequest(`/baskets/${basket.ident}/packages`, {
+      package_id: String(shopConfig.tebex.packageIds[product.id]),
+      quantity
+    });
+  }
+
+  if (window.Tebex && window.Tebex.checkout) {
+    window.Tebex.checkout.init({
+      ident: basket.ident,
+      theme: 'dark',
+      colors: [{ name: 'primary', color: '#8b5cf6' }]
+    });
+    window.Tebex.checkout.on('payment:complete', () => {
+      state.cart = {};
+      saveCart();
+      renderCart();
+      showToast('Payment complete! Your order is on its way.');
+    });
+    window.Tebex.checkout.launch();
+  } else if (latest.links && latest.links.checkout) {
+    // Fallback if Tebex.js hasn't loaded (e.g. blocked script) — redirect
+    // straight to the hosted checkout page instead of the inline popup.
+    window.location.href = latest.links.checkout;
+  } else {
+    throw new Error('Tebex did not return a checkout link.');
+  }
+}
+
+function updateCheckoutButtonLabel() {
+  const button = $('#checkoutForm button[type="submit"]');
+  if (!button) return;
+  button.textContent = shopConfig.tebex.enabled ? 'Continue to Tebex Checkout' : 'Create Order Summary';
+}
+
 $$('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     $$('.tab').forEach(item => item.classList.remove('active'));
@@ -572,7 +670,7 @@ $('#checkoutForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const username = $('#mcUsername').value.trim();
   const email = $('#email').value.trim();
-  const orderText = getOrderText(username, email);
+
   const activePromo = getPromoCode();
   if (activePromo) {
     const status = promoStatus();
@@ -585,6 +683,29 @@ $('#checkoutForm').addEventListener('submit', async (event) => {
     recordPromoRedemption(state.promoCode);
   }
 
+  if (shopConfig.tebex.enabled) {
+    const issue = tebexConfigIssue();
+    if (issue) {
+      showToast(issue);
+    } else {
+      const button = $('#checkoutForm button[type="submit"]');
+      button.disabled = true;
+      button.textContent = 'Opening Tebex checkout…';
+      try {
+        await startTebexCheckout(username);
+        closeModal('checkoutModal');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not open Tebex checkout. Please try again.');
+      } finally {
+        button.disabled = false;
+        updateCheckoutButtonLabel();
+      }
+      return;
+    }
+  }
+
+  const orderText = getOrderText(username, email);
   try {
     await navigator.clipboard.writeText(orderText);
     showToast('Order summary copied to clipboard.');
@@ -613,6 +734,7 @@ function init() {
   renderRanks();
   renderCompareSelects();
   renderCart();
+  updateCheckoutButtonLabel();
 }
 
 init();
