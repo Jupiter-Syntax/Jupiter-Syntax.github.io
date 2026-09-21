@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <!-- Powers real Tebex checkout once a store is connected in the shop config. Harmless to load either way. -->
+  <script defer src="https://js.tebex.io/v/1.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -78,7 +80,7 @@
         <div>
           <div class="section-kicker">THE STORE</div>
           <h2>Choose your upgrade</h2>
-          <p>Everything below is controlled from one simple config object in <code>script.js</code>. Memberships renew monthly through Tebex when connected.</p>
+          <p>Everything below is controlled from one simple config object in the shop config. Memberships renew monthly through Tebex when connected.</p>
         </div>
         <div class="server-status"><span></span> Server online</div>
       </div>
@@ -141,15 +143,19 @@
       <div class="faq-grid">
         <details>
           <summary>How are purchases delivered?</summary>
-          <p>This storefront is frontend-only, so you can connect the checkout button to Tebex, Stripe, CraftingStore, your own backend, or another payment provider later.</p>
+          <p>Checkout connects directly to Tebex once your store details are added to the shop config — see "How do I connect Tebex?" below. Until then, this storefront runs as a demo that creates a copyable order summary.</p>
+        </details>
+        <details>
+          <summary>How do I connect Tebex?</summary>
+          <p>In the shop config, add your Tebex public token and a package ID for each product under the Tebex settings near the top, then turn Tebex on. Checkout will automatically switch from the demo order summary to a real Tebex checkout, and the button will tell you if anything's still missing.</p>
         </details>
         <details>
           <summary>How do I change prices?</summary>
-          <p>Open <code>script.js</code> and edit the <code>products</code> object near the top. The cards, cart, and featured rank price update automatically.</p>
+          <p>Open the shop config and edit the <code>products</code> object near the top. The cards, cart, and featured rank price update automatically.</p>
         </details>
         <details>
           <summary>Can I change the server IP?</summary>
-          <p>Yes. Change <code>serverIp</code> in <code>script.js</code>. The Copy Server IP button will use that value.</p>
+          <p>Yes. Change <code>serverIp</code> in the shop config. The Copy Server IP button will use that value.</p>
         </details>
         <details>
           <summary>Can I add more items?</summary>
@@ -157,7 +163,7 @@
         </details>
         <details>
           <summary>How do I add discount or partner codes?</summary>
-          <p>Open <code>script.js</code> and edit <code>shopConfig.promoCodes</code> near the top. Add a discount code with a percentage or fixed amount, or add a partner code with a creator name and discount.</p>
+          <p>Open the shop config and edit <code>shopConfig.promoCodes</code> near the top. Add a discount code with a percentage or fixed amount, or add a partner code with a creator name and discount. For the code to also change what Tebex charges, create a matching Coupon or Creator Code in your Tebex panel too.</p>
         </details>
       </div>
     </section>
@@ -203,7 +209,7 @@
           <div class="total-line"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
         </div>
         <button class="btn btn-primary full" id="checkoutBtn" type="button">Continue to Checkout</button>
-        <small>Checkout is currently a frontend demo. Connect your payment provider in <code>script.js</code>.</small>
+        <small>Checkout runs through Tebex once it's connected in the shop config. Until then, it's a demo.</small>
       </div>
     </aside>
   </div>
@@ -222,7 +228,7 @@
         <label>Email<input id="email" name="email" type="email" placeholder="you@example.com" required /></label>
         <div class="checkout-summary" id="checkoutSummary"></div>
         <button class="btn btn-primary full" type="submit">Create Order Summary</button>
-        <p class="checkout-note">No payment is processed by this demo page. On submit, it creates a copyable order summary for your chosen payment system.</p>
+        <p class="checkout-note">Once Tebex is connected in the shop config, this opens a real Tebex checkout. Until then, it creates a copyable order summary instead of processing payment.</p>
       </form>
     </div>
   </div>
