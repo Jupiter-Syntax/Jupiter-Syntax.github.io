@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ryft SMP official Minecraft server shop." />
+  <title>Ryft SMP • Official Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+
+  <header class="topbar">
+    <div class="container nav-wrap">
+      <a class="brand" href="#top" aria-label="Ryft SMP home">
+        <span class="brand-mark">R</span>
+        <span>
+          <strong>RYFT</strong>
+          <small>SMP</small>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#shop">Shop</a>
+        <a href="#ranks">Ranks</a>
+        <a href="#compare">Compare</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <button class="cart-button" id="openCartBtn" type="button" aria-label="Open shopping cart">
+        <span class="cart-icon">🛒</span>
+        <span>Cart</span>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse-dot"></span> RYFT SMP OFFICIAL STORE</div>
+        <h1>Upgrade your<br /><span>Ryft experience.</span></h1>
+        <p>Grab exclusive ranks, keys, and rewards built for the Ryft SMP community.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#shop">Browse Store</a>
+          <button class="btn btn-secondary" id="copyIpBtn" type="button">Copy Server IP</button>
+        </div>
+        <div class="hero-meta">
+          <span>⚡ Instant delivery</span>
+          <span>🔒 Secure checkout ready</span>
+          <span>🎁 Exclusive rewards</span>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-card-glow"></div>
+        <div class="hero-card-top">
+          <span class="mini-badge">FEATURED</span>
+          <span class="tiny-label">BEST VALUE</span>
+        </div>
+        <div class="rank-emblem">♛</div>
+        <h2>RYFT</h2>
+        <p>The ultimate server rank.</p>
+        <div class="price-row">
+          <span class="hero-price" id="featuredPrice">$39.99</span>
+          <span class="muted">one-time</span>
+        </div>
+        <button class="btn btn-light full" id="heroBuyBtn" type="button">View Ryft Rank</button>
+      </div>
+    </section>
+
+    <section class="store container" id="shop">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">THE STORE</div>
+          <h2>Choose your upgrade</h2>
+          <p>Everything below is controlled from one simple config object in <code>script.js</code>. Memberships renew monthly through Tebex when connected.</p>
+        </div>
+        <div class="server-status"><span></span> Server online</div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Shop categories">
+        <button class="tab active" data-category="all" role="tab" type="button">All Items</button>
+        <button class="tab" data-category="ranks" role="tab" type="button">Ranks</button>
+        <button class="tab" data-category="items" role="tab" type="button">Items</button>
+        <button class="tab" data-category="subscriptions" role="tab" type="button">Memberships</button>
+      </div>
+
+      <div class="shop-grid" id="shopGrid"></div>
+    </section>
+
+    <section class="rank-strip" id="ranks">
+      <div class="container">
+        <div class="rank-strip-head">
+          <div>
+            <div class="section-kicker">RANK PROGRESSION</div>
+            <h2>Climb the Ryft ladder</h2>
+          </div>
+          <span class="rank-note">All ranks are one-time purchases</span>
+        </div>
+        <div class="rank-line" id="rankLine"></div>
+      </div>
+    </section>
+
+    <section class="rank-compare container" id="compare">
+      <div class="section-head compact">
+        <div>
+          <div class="section-kicker">RANK SELECTOR</div>
+          <h2>Compare two ranks</h2>
+          <p>Pick any two ranks to see exactly what changes between them.</p>
+        </div>
+        <span class="compare-hint">Differences are highlighted automatically</span>
+      </div>
+
+      <div class="compare-selectors">
+        <label class="compare-select-card">
+          <span>First rank</span>
+          <select id="compareRankA" aria-label="Choose first rank"></select>
+        </label>
+        <div class="vs-badge">VS</div>
+        <label class="compare-select-card">
+          <span>Second rank</span>
+          <select id="compareRankB" aria-label="Choose second rank"></select>
+        </label>
+      </div>
+
+      <div class="compare-card" id="compareCard" aria-live="polite"></div>
+    </section>
+
+    <section class="faq container" id="faq">
+      <div class="section-head compact">
+        <div>
+          <div class="section-kicker">NEED TO KNOW</div>
+          <h2>Frequently asked questions</h2>
+        </div>
+      </div>
+      <div class="faq-grid">
+        <details>
+          <summary>How are purchases delivered?</summary>
+          <p>This storefront is frontend-only, so you can connect the checkout button to Tebex, Stripe, CraftingStore, your own backend, or another payment provider later.</p>
+        </details>
+        <details>
+          <summary>How do I change prices?</summary>
+          <p>Open <code>script.js</code> and edit the <code>products</code> object near the top. The cards, cart, and featured rank price update automatically.</p>
+        </details>
+        <details>
+          <summary>Can I change the server IP?</summary>
+          <p>Yes. Change <code>serverIp</code> in <code>script.js</code>. The Copy Server IP button will use that value.</p>
+        </details>
+        <details>
+          <summary>Can I add more items?</summary>
+          <p>Yes. Add another product entry with a name, category, price, icon, color class, description, and features.</p>
+        </details>
+        <details>
+          <summary>How do I add discount or partner codes?</summary>
+          <p>Open <code>script.js</code> and edit <code>shopConfig.promoCodes</code> near the top. Add a discount code with a percentage or fixed amount, or add a partner code with a creator name and discount.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <div class="brand footer-brand"><span class="brand-mark">R</span><span><strong>RYFT</strong><small>SMP</small></span></div>
+        <p>Official Ryft SMP store.</p>
+      </div>
+      <div class="footer-links">
+        <span>Server: <strong id="serverIpText">play.ryftsmp.com</strong></span>
+        <a href="#shop">Store</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-backdrop" id="cartModal" aria-hidden="true">
+    <aside class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+      <div class="panel-head">
+        <div>
+          <div class="section-kicker">YOUR ORDER</div>
+          <h2 id="cartTitle">Shopping Cart</h2>
+        </div>
+        <button class="icon-btn" id="closeCartBtn" type="button" aria-label="Close cart">✕</button>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-empty" id="cartEmpty">
+        <div class="empty-icon">🛍️</div>
+        <h3>Your cart is empty</h3>
+        <p>Add a rank, spawner key, or crate key to get started.</p>
+      </div>
+      <div class="cart-footer">
+        <div class="promo-box">
+          <div class="promo-heading"><span>🏷️</span><div><strong>Discount or Partner Code</strong><small>Creators can share their own code with your community.</small></div></div>
+          <div id="promoArea"></div>
+        </div>
+        <div class="cart-summary-lines">
+          <div class="summary-line"><span>Subtotal</span><strong id="cartSubtotal">$0.00</strong></div>
+          <div class="summary-line discount" id="cartDiscountRow"><span>Discount</span><strong id="cartDiscount">−$0.00</strong></div>
+          <div class="total-line"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
+        </div>
+        <button class="btn btn-primary full" id="checkoutBtn" type="button">Continue to Checkout</button>
+        <small>Checkout is currently a frontend demo. Connect your payment provider in <code>script.js</code>.</small>
+      </div>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop" id="checkoutModal" aria-hidden="true">
+    <div class="checkout-card" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <div class="panel-head">
+        <div>
+          <div class="section-kicker">FINAL STEP</div>
+          <h2 id="checkoutTitle">Checkout</h2>
+        </div>
+        <button class="icon-btn" id="closeCheckoutBtn" type="button" aria-label="Close checkout">✕</button>
+      </div>
+      <form id="checkoutForm">
+        <label>Minecraft Username<input id="mcUsername" name="username" type="text" maxlength="16" placeholder="YourMinecraftName" required /></label>
+        <label>Email<input id="email" name="email" type="email" placeholder="you@example.com" required /></label>
+        <div class="checkout-summary" id="checkoutSummary"></div>
+        <button class="btn btn-primary full" type="submit">Create Order Summary</button>
+        <p class="checkout-note">No payment is processed by this demo page. On submit, it creates a copyable order summary for your chosen payment system.</p>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
